@@ -1,6 +1,8 @@
 import './css/styles.css';
-
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+// Додатковий імпорт стилів SimpleLightbox
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import { PixabayApiService } from './js/pixabay-api';
 
 const refs = {
@@ -12,12 +14,17 @@ const refs = {
 
 const pixabayApiService = new PixabayApiService();
 
+const simpleLightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
 loadMoreBtnHidden();
 
-refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+refs.searchForm.addEventListener('submit', handleSearch);
+refs.loadMoreBtn.addEventListener('click', handleLoadMore);
 
-async function onSearch(event) {
+async function handleSearch(event) {
   event.preventDefault();
 
   const searchValue = event.target.elements.searchQuery.value.trim();
@@ -59,7 +66,7 @@ async function onSearch(event) {
   }
 }
 
-async function onLoadMore() {
+async function handleLoadMore() {
   pixabayApiService.incrementPage();
   try {
     const {
@@ -67,6 +74,7 @@ async function onLoadMore() {
     } = await pixabayApiService.getImages();
     const markup = getImagesMarkup(getNormalizedImages(hits));
     refs.gallery.insertAdjacentHTML('beforeend', markup);
+    simpleLightbox.refresh();
     pixabayApiService.checkLastPage() ? loadMoreBtnHidden() : loadMoreBtnShow();
   } catch (error) {
     console.log(error.message);
