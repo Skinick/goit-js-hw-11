@@ -54,11 +54,10 @@ async function handleSearch(event) {
 
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
 
-    const normalizedHits = getNormalizedImages(hits);
-    const imagesMarkup = getImagesMarkup(normalizedHits);
-    console.log(hits);
+    const imagesMarkup = getImagesMarkup(hits);
 
     refs.gallery.innerHTML = imagesMarkup;
+    simpleLightbox.refresh();
 
     pixabayApiService.checkLastPage() ? loadMoreBtnHidden() : loadMoreBtnShow();
   } catch (error) {
@@ -72,7 +71,7 @@ async function handleLoadMore() {
     const {
       data: { hits },
     } = await pixabayApiService.getImages();
-    const markup = getImagesMarkup(getNormalizedImages(hits));
+    const markup = getImagesMarkup(hits);
     refs.gallery.insertAdjacentHTML('beforeend', markup);
     simpleLightbox.refresh();
     pixabayApiService.checkLastPage() ? loadMoreBtnHidden() : loadMoreBtnShow();
@@ -86,16 +85,6 @@ function loadMoreBtnHidden() {
 }
 function loadMoreBtnShow() {
   refs.loadMoreBtn.style.display = 'block';
-}
-
-function getNormalizedImages(array) {
-  return array.map(({ webformatURL, likes, views, comments, downloads }) => ({
-    webformatURL,
-    likes,
-    views,
-    comments,
-    downloads,
-  }));
 }
 
 function getImagesMarkup(array) {
